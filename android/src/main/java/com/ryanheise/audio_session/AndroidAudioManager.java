@@ -404,16 +404,23 @@ public class AndroidAudioManager implements MethodCallHandler {
             return audioManager.getStreamMaxVolume(streamType);
         }
         private Object getStreamMinVolume(int streamType) {
-            requireApi(28);
-            return audioManager.getStreamMinVolume(streamType);
+            if (Build.VERSION.SDK_INT >= 28) {
+                return invokeApi28Method("getStreamMinVolume", streamType);
+            } else {
+                return null; // or some default value if needed
+            }
         }
         private Object getStreamVolume(int streamType) {
             return audioManager.getStreamVolume(streamType);
         }
         private Object getStreamVolumeDb(int streamType, int index, int deviceType) {
-            requireApi(28);
-            return audioManager.getStreamVolumeDb(streamType, index, deviceType);
+            if (Build.VERSION.SDK_INT >= 28) {
+                return invokeApi28Method("getStreamVolumeDb", streamType, index, deviceType);
+            } else {
+                return null; // or some default value if needed
+            }
         }
+
         private Object setRingerMode(int ringerMode) {
             audioManager.setRingerMode(ringerMode);
             return null;
@@ -427,32 +434,45 @@ public class AndroidAudioManager implements MethodCallHandler {
             return audioManager.isStreamMute(streamType);
         }
         private List<Map<String, Object>> getAvailableCommunicationDevices() {
-            requireApi(31);
-            devices = audioManager.getAvailableCommunicationDevices();
-            ArrayList<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-            for (AudioDeviceInfo device : devices) {
-                result.add(encodeAudioDevice(device));
+    if (Build.VERSION.SDK_INT >= 31) {
+        devices = (List<AudioDeviceInfo>) invokeApi31Method("getAvailableCommunicationDevices");
+        ArrayList<Map<String, Object>> result = new ArrayList<>();
+        for (AudioDeviceInfo device : devices) {
+            result.add(encodeAudioDevice(device));
+        }
+        return result;
+    } else {
+        return new ArrayList<>(); // or some default value if needed
+    }
+}
+
+private boolean setCommunicationDevice(Integer deviceId) {
+    if (Build.VERSION.SDK_INT >= 31) {
+        for (AudioDeviceInfo device : devices) {
+            if (device.getId() == deviceId) {
+                return (boolean) invokeApi31Method("setCommunicationDevice", device);
             }
-            return result;
         }
-        private boolean setCommunicationDevice(Integer deviceId) {
-            requireApi(31);
-            for (AudioDeviceInfo device : devices) {
-                if (device.getId() == deviceId) {
-                    return audioManager.setCommunicationDevice(device);
-                }
-            }
-            return false;
-        }
-        private Map<String, Object> getCommunicationDevice() {
-            requireApi(31);
-            return encodeAudioDevice(audioManager.getCommunicationDevice());
-        }
-        private Object clearCommunicationDevice() {
-            requireApi(31);
-            audioManager.clearCommunicationDevice();
-            return null;
-        }
+    }
+    return false;
+}
+
+private Map<String, Object> getCommunicationDevice() {
+    if (Build.VERSION.SDK_INT >= 31) {
+        AudioDeviceInfo device = (AudioDeviceInfo) invokeApi31Method("getCommunicationDevice");
+        return encodeAudioDevice(device);
+    } else {
+        return null; // or some default value if needed
+    }
+}
+
+private Object clearCommunicationDevice() {
+    if (Build.VERSION.SDK_INT >= 31) {
+        return invokeApi31Method("clearCommunicationDevice");
+    } else {
+        return null; // or some default value if needed
+    }
+}
         @SuppressWarnings("deprecation")
         private Object setSpeakerphoneOn(boolean enabled) {
             audioManager.setSpeakerphoneOn(enabled);
