@@ -1,5 +1,6 @@
 package com.ryanheise.audio_session;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -267,18 +268,20 @@ public class AndroidAudioManager implements MethodCallHandler {
             return result;
         }
 
+        @SuppressLint("NewApi")
         private static Map<String, Object> encodeAudioDevice(AudioDeviceInfo device) {
-            Map<String, Object> deviceInfo = new HashMap<>();
-            deviceInfo.put("id", device.getId());
-            deviceInfo.put("productName", device.getProductName());
-            deviceInfo.put("isSource", device.isSource());
-            deviceInfo.put("isSink", device.isSink());
-            deviceInfo.put("sampleRates", device.getSampleRates());
-            deviceInfo.put("channelMasks", device.getChannelMasks());
-            deviceInfo.put("channelIndexMasks", device.getChannelIndexMasks());
-            deviceInfo.put("channelCounts", device.getChannelCounts());
-            deviceInfo.put("encodings", device.getEncodings());
-            deviceInfo.put("type", device.getType());
+            Map<String, Object> deviceInfo = mapOf(
+                "id", device.getId(),
+                "productName", device.getProductName(),
+                "isSource", device.isSource(),
+                "isSink", device.isSink(),
+                "sampleRates", device.getSampleRates(),
+                "channelMasks", device.getChannelMasks(),
+                "channelIndexMasks", device.getChannelIndexMasks(),
+                "channelCounts", device.getChannelCounts(),
+                "encodings", device.getEncodings(),
+                "type", device.getType()
+            );
 
             if (Build.VERSION.SDK_INT >= 28) {
                 deviceInfo.put("address", device.getAddress());
